@@ -33,7 +33,8 @@ public class RobotContainer {
   // Creates the auton sendable chooser.
   private final SendableChooser<Command> autoChooser;
 
-  Boolean fieldRelative = false;
+  // Creates a sendable chooser to select default drive method
+  private final SendableChooser<Command> driveChooser = new SendableChooser<>();
 
   // Creates the controllers.
   CommandXboxController driverXbox = new CommandXboxController(0);
@@ -53,31 +54,33 @@ public class RobotContainer {
 
     autoChooser = AutoBuilder.buildAutoChooser(); // Builds auton sendable chooser for pathplanner.
     SmartDashboard.putData(autoChooser);  // Sends autoBuilder to smartdashboard.
-    SmartDashboard.putBoolean("yes", fieldRelative);
 
     // Creating the robot centric swerve drive
-    Command closedDrive = drivebase.customDriveCommand( 
+    Command closedDrive = drivebase.customDriveCommand(false, 
     () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND), 
     () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND), 
     () -> MathUtil.applyDeadband(-driverXbox.getRightX(), OperatorConstants.RIGHT_X_DEADBAND),
-    driverXbox.leftTrigger(.3),
     driverXbox.leftBumper(),
     driverXbox.rightBumper());
 
     // Creating the field centric swerve drive
-    Command fieldDrive = drivebase.customDriveCommand( 
+    Command fieldDrive = drivebase.customDriveCommand(true, 
     () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND), 
     () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND), 
     () -> MathUtil.applyDeadband(-driverXbox.getRightX(), OperatorConstants.RIGHT_X_DEADBAND),
-    driverXbox.leftTrigger().debounce(1),
     driverXbox.leftBumper(),  // Left bumper for slow speed
     driverXbox.rightBumper());  // Right bumper for high speed
 
-    drivebase.setDefaultCommand(closedDrive); // Set default drive command to field centric drive
+    // Adds drive options and posts chooser to dashboard.
+    driveChooser.setDefaultOption("Robot Centric", closedDrive);
+    driveChooser.addOption("Field Centric", fieldDrive);
+    SmartDashboard.putData("Default Drive Chooser", driveChooser);
 
-    driverXbox.rightTrigger().whileTrue(drivebase.goToNotePID()); // Drive to note with vision.
+    drivebase.setDefaultCommand(driveChooser.getSelected()); // Set default drive command from chooser.
 
     // Driver Controls
+    driverXbox.leftTrigger(.3).toggleOnTrue(closedDrive); // Toggle robot centric swerve drive.
+    driverXbox.rightTrigger().whileTrue(drivebase.goToNotePID()); // Drive to note with vision.
     driverXbox.start().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());    // Lock drive train to limit pushing.
     driverXbox.back().onTrue(new InstantCommand(drivebase::zeroGyro)); // Zero the gyro to avoid odd drive due to gyro drift.
 

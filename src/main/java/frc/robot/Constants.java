@@ -34,7 +34,10 @@ public final class Constants
      */
     public static final class SwerveConstants {
         public static final double maxSpeed = Units.feetToMeters(14.5); // Maximum speed of the robot in meters per second, used to limit acceleration.
-        public static final double visionMaxSpeed = Units.feetToMeters(6); // Maximum speed of the robot in meters per second while tracking the note.
+        public static final double visionSpeedMultiple = .4; // Multiplier used to limit robot speed while tracking note (speed * visionSpeedMultiple).
+        public static final double lowSpeedMultiple = .3;   // Multiplier used to limit robot speed while held (speed * lowSpeedMultiple).
+        public static final double baseSpeedMultiple = .5;  // Multiplier used to limit robot speed while held (speed * baseSpeedMultiple).
+        public static final double highSpeedMultiple = .8;  // Multiplier used to limit robot speed while held (speed * highSpeedMultiple).
         public static final PIDConstants visionTurnPID = new PIDConstants(0.85, 0, 0);  // PID Turn values for vision tracking.
         public static final PIDConstants visionForwardPID = new PIDConstants(1.4, 0, 0);    // PID Forward values for vision tracking.
     }

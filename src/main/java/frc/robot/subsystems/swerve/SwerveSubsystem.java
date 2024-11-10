@@ -31,17 +31,14 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swerve.Vision.Cameras;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -75,12 +72,12 @@ public class SwerveSubsystem extends SubsystemBase
    */
   private final boolean visionDriveTest = true;
 
+  // maxSpeed multiple to be manipulated in customDriveCommand
   public double maxSpeed;
 
-  boolean fieldR = false;
-
-  PIDController turnController = new PIDController(.085, 0, 0);
-  PIDController forwardController = new PIDController(1.4, 0, 0);
+  // Creates the PID Controllers for vision tracking via goToNotePID
+  PIDController turnController = new PIDController(SwerveConstants.visionTurnPID.kP, SwerveConstants.visionTurnPID.kI, SwerveConstants.visionTurnPID.kD);
+  PIDController forwardController = new PIDController(SwerveConstants.visionForwardPID.kP, SwerveConstants.visionForwardPID.kI, SwerveConstants.visionForwardPID.kD);
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -139,7 +136,6 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   { 
-    SmartDashboard.putBoolean("fieldR", fieldR);
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
@@ -234,6 +230,10 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
 
+  /**
+   * 
+   * @return a {@link Command} that uses vision to drive to the note.
+   */
   public Command goToNotePID() {
       return run(
         () -> {
@@ -251,7 +251,7 @@ public class SwerveSubsystem extends SubsystemBase
             forwardSpeed = forwardController.calculate(range, 5);
             rotationSpeed = turnController.calculate(result.getBestTarget().getYaw(), 2);
 
-            swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(forwardSpeed/3, 0), .8),
+            swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(forwardSpeed * SwerveConstants.visionSpeedMultiple, 0), .8),
                                                           rotationSpeed, false, false);
           }
 
@@ -421,28 +421,31 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   
-  public Command customDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX, BooleanSupplier fieldRelative, 
-  BooleanSupplier lowSpeed, BooleanSupplier highSpeed)
+  /**
+   * Customized drive command to change speed on the fly.
+   * @param fieldRelative Drive mode. Set true for field relative, false for robot relative.
+   * @param translationX  Strafe drive axis. Left and right.
+   * @param translationY  Throttle drive axis. Back and forth.
+   * @param angularRotationX  Rotation axis. Spin..
+   * @param lowSpeed  Low speed while boolean is true.
+   * @param highSpeed High speed while boolean is true.
+   * @return a {@link Command} to drive at various speeds.
+   */
+  public Command customDriveCommand(boolean fieldRelative, DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX
+  , BooleanSupplier lowSpeed, BooleanSupplier highSpeed)
   {
     return run(() -> {
+      // Make the robot move
 
-      if (lowSpeed.getAsBoolean()) {maxSpeed = .3;} // If lowSpeed held go slow.
-      else if (highSpeed.getAsBoolean()) {maxSpeed = .7;} // If highSpeed held go fast.
-      else {maxSpeed = .5;} // Else go base speed.
-
-      if (fieldRelative.getAsBoolean() && fieldR) {
-        fieldR = false;
-      } else if (fieldRelative.getAsBoolean() && (fieldR = false)) {
-        fieldR = true;
-      }
-
-      SmartDashboard.putBoolean("FieldRRRRR", fieldR);
+      if (lowSpeed.getAsBoolean()) {maxSpeed = SwerveConstants.lowSpeedMultiple;} // If lowSpeed held go slow.
+      else if (highSpeed.getAsBoolean()) {maxSpeed = SwerveConstants.highSpeedMultiple;} // If highSpeed held go fast.
+      else {maxSpeed = SwerveConstants.baseSpeedMultiple;} // Else go base speed.
 
       swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(  // Creates drive
                             translationX.getAsDouble() * swerveDrive.getMaximumVelocity() * maxSpeed,
                             translationY.getAsDouble() * swerveDrive.getMaximumVelocity() * maxSpeed), 0.8),
                         Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumAngularVelocity() * maxSpeed,
-                        fieldR,
+                        fieldRelative,
                         false);
     });
   }

@@ -13,20 +13,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ManipulatorConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
-  /** Creates a new IntakeSubsystem. */
+  // Create intake and shooter motors.
   CANSparkMax intakeMotor = new CANSparkMax(ManipulatorConstants.intakeMotorPort, MotorType.kBrushed);
   CANSparkMax shooterMotor = new CANSparkMax(ManipulatorConstants.shooterMotorPort, MotorType.kBrushed);
 
-  /**
-   * Initialize {@link IntakeSubsystem} with idle modes.
-   */
   public IntakeSubsystem() {
+    // Set motor inversions.
     intakeMotor.setInverted(false);
     shooterMotor.setInverted(true);
   }
 
   @Override
   public void periodic() {
+    // Does nothing.
   }
 
   /**
@@ -57,8 +56,9 @@ public class IntakeSubsystem extends SubsystemBase {
       shooterMotor.set(shooterSpeed); // run shooter at set speed.
       Timer.delay(time);  // ramp up shooter for time.
       intakeMotor.set(intakeSpeed); // index the note into the shooter at set speed.
-    }, () -> {
-      shooterMotor.stopMotor(); // stop motors when done.
+
+    }, () -> {  // stop motors when done.
+      shooterMotor.stopMotor(); 
       intakeMotor.stopMotor();
     }
    );

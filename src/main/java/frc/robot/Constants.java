@@ -37,6 +37,7 @@ public final class Constants
     }
 
     public static final class ClimbConstants {
-        public static final int climberMotorPort = 14;  // brushless climb motor with spark max
+        public static final int climbMotorPort = 14;  // Brushless climb motor with spark max
+        public static final int climbLimitPort = 2; // Limit switch port
     }
 }

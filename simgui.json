@@ -1,9 +1,46 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "SPARK MAX [10]": {
+        "header": {
+          "open": true
+        }
+      },
+      "SPARK MAX [11]": {
+        "header": {
+          "open": true
+        }
+      },
+      "SPARK MAX [12]": {
+        "header": {
+          "open": true
+        }
+      },
+      "SPARK MAX [13]": {
+        "header": {
+          "open": true
+        }
+      },
+      "SPARK MAX [14]": {
+        "header": {
+          "open": true
+        }
+      },
+      "SPARK MAX [3]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auton Chooser": "String Chooser",
+      "/SmartDashboard/Default Drive Chooser": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
+      "/SmartDashboard/SendableChooser[2]": "String Chooser",
       "/SmartDashboard/VisionSystemSim-Vision/Sim Field": "Field2d",
       "/SmartDashboard/navX-Sensor[4]": "Gyro"
     },
@@ -24,6 +61,9 @@
   "NetworkTables": {
     "transitory": {
       "SmartDashboard": {
+        "Alerts": {
+          "open": true
+        },
         "open": true
       }
     }

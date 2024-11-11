@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import frc.robot.Constants.ManipulatorConstants;
+import frc.robot.Telemetry.RobotTelemetry;
 
 public class ArmSubsytem extends SubsystemBase {
   // Create the arms motors.
@@ -63,16 +65,21 @@ public class ArmSubsytem extends SubsystemBase {
 
       } else {} // If neither do nothing.
 
-      // Push telemetry data to the NetworkTables.
-      SmartDashboard.putNumber("Arm Encoder Value", armEncoder.getPosition());
-      SmartDashboard.putNumber("Arm Rotation Value", armEncoder.getPosition() * (1/2.25));
+      // Push telemetry data to the NetworkTables if verbosity is LOW or higher.
+      if (Telemetry.robotVerbosity.ordinal() >= RobotTelemetry.LOW.ordinal()) {
       SmartDashboard.putBoolean("Top Arm Limit", topLimit.get());
       SmartDashboard.putBoolean("Bottom Arm Limit", bottomLimit.get());
+      }
+      // Push telemetry data to the NetworkTables if verbosity is high.
+      if (Telemetry.robotVerbosity == RobotTelemetry.HIGH) {
+      SmartDashboard.putNumber("Arm Encoder Value", armEncoder.getPosition());
+      SmartDashboard.putNumber("Arm Rotation Value", armEncoder.getPosition() * (1/2.25));
+      }
   }
 
   /**
    * Move the arm at commanded speeds.
-   * @param speed
+   * @param speed How fast the arm moves. (E.g., 0.4)
    * @return A {@link Command} moves the arm.
    */
   public Command ArmCommand(double speed) {
@@ -104,7 +111,7 @@ public class ArmSubsytem extends SubsystemBase {
 
   /**
    * Move the arm to a given setpoint.
-   * @param setpoint
+   * @param setpoint When the arm will stop, use HIGH telemetry to find value. (E.g., 15)
    * @return a {@link Command} that moves the arm to a given setpoint.
    */
   public Command MoveToSetpoint(double setpoint) {

@@ -12,7 +12,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import frc.robot.Constants.ClimbConstants;
+import frc.robot.Telemetry.RobotTelemetry;
 
 public class ClimbSubsystem extends SubsystemBase {
   // Create climb motor and climb encoder.
@@ -26,13 +28,20 @@ public class ClimbSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {  // Periodic is called continously.
-    // Push telemetry data to the NetworkTables.
+
+    // Push telemetry data to the NetworkTables if verbosity is LOW or higher.
+    if (Telemetry.robotVerbosity.ordinal() >= RobotTelemetry.LOW.ordinal()) {
     SmartDashboard.putBoolean("Climb Limit", climbLimit.get());
+    }
+    // Push telemetry data to the NetworkTables.
+    if (Telemetry.robotVerbosity == RobotTelemetry.HIGH) {
+    SmartDashboard.putNumber("Climb Position", climbMoter.getEncoder().getPosition());
+    }
   }
 
   /**
    * Raise or lower the climb at given speed.
-   * @param speed
+   * @param speed How fast the climb moves. (E.g., 0.4)
    * @return a {@link Command} to move the climb at set speed.
    */
   public Command ClimbCommand(double speed) {

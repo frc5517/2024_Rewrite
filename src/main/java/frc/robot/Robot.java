@@ -15,11 +15,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    // Calls RobotContainer when robot initializes.
     m_robotContainer = new RobotContainer();
   }
 
   @Override
   public void robotPeriodic() {
+    // Run the scheduler constantly. 
     CommandScheduler.getInstance().run();
   }
 
@@ -27,15 +29,18 @@ public class Robot extends TimedRobot {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
   public void disabledExit() {}
 
   @Override
   public void autonomousInit() {
+    // Get auton command when autonomous initializes.
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
+    // If auton command is not null schedule the auton command.
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
@@ -49,6 +54,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    // If auton command is still running at beginning of teleop stop auton.
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -62,6 +68,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    // Cancel all scheduled commands. 
     CommandScheduler.getInstance().cancelAll();
   }
 

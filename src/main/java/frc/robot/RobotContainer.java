@@ -10,6 +10,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,9 +34,6 @@ public class RobotContainer {
   // Creates the auton sendable chooser.
   private final SendableChooser<Command> autoChooser;
 
-  // Creates a sendable chooser to select default drive method
-  private final SendableChooser<Command> driveChooser = new SendableChooser<>();
-
   // Creates the controllers.
   CommandXboxController driverXbox = new CommandXboxController(0);
   CommandXboxController operatorXbox = new CommandXboxController(1);
@@ -53,7 +51,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Reset IMU", new InstantCommand(drivebase::zeroGyro));
 
     autoChooser = AutoBuilder.buildAutoChooser(); // Builds auton sendable chooser for pathplanner.
-    SmartDashboard.putData(autoChooser);  // Sends autoBuilder to smartdashboard.
+    SmartDashboard.putData("Auton Chooser", autoChooser);  // Sends autoBuilder to smartdashboard.
 
     // Creating the robot centric swerve drive
     Command closedDrive = drivebase.customDriveCommand(false, 
@@ -71,15 +69,29 @@ public class RobotContainer {
     driverXbox.leftBumper(),  // Left bumper for slow speed
     driverXbox.rightBumper());  // Right bumper for high speed
 
-    // Adds drive options and posts chooser to dashboard.
-    driveChooser.setDefaultOption("Robot Centric", closedDrive);
-    driveChooser.addOption("Field Centric", fieldDrive);
-    SmartDashboard.putData("Default Drive Chooser", driveChooser);
+    drivebase.setDefaultCommand(closedDrive); // Set default drive command from chooser.
 
-    drivebase.setDefaultCommand(driveChooser.getSelected()); // Set default drive command from chooser.
+    if (DriverStation.isTest()) 
+    { // If test is enabled change controls for a single controller.
 
+    // Driver based controls.
+    driverXbox.leftTrigger(.3).toggleOnTrue(fieldDrive); // Toggle robot centric swerve drive.
+    driverXbox.rightTrigger().whileTrue(drivebase.goToNotePID()); // Drive to note with vision.
+    driverXbox.start().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());    // Lock drive train to limit pushing.
+    driverXbox.back().onTrue(new InstantCommand(drivebase::zeroGyro)); // Zero the gyro to avoid odd drive due to gyro drift.
+
+    // Operator based controls.
+    driverXbox.y().whileTrue(armbase.ArmCommand(.3));  // Raise the arm.
+    driverXbox.a().whileTrue(armbase.ArmCommand(-.3)); // Lower the arm.
+    driverXbox.x().whileTrue(intakebase.ShootCommand(.6, .5, .2)); // Spit the note into the amp.
+    driverXbox.b().whileTrue(intakebase.ShootCommand(1, .7, .7));  // Shoot the note into the speaker
+    driverXbox.pov(180).whileTrue(intakebase.IntakeCommand(-.3));  // Outtake the note.
+    driverXbox.pov(0).whileTrue(intakebase.IntakeCommand(1.0)); // Run intake at speed.
+
+    } else // Any other time use default two controller controls.
+    {
     // Driver Controls
-    driverXbox.leftTrigger(.3).toggleOnTrue(closedDrive); // Toggle robot centric swerve drive.
+    driverXbox.leftTrigger(.3).toggleOnTrue(fieldDrive); // Toggle robot centric swerve drive.
     driverXbox.rightTrigger().whileTrue(drivebase.goToNotePID()); // Drive to note with vision.
     driverXbox.start().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());    // Lock drive train to limit pushing.
     driverXbox.back().onTrue(new InstantCommand(drivebase::zeroGyro)); // Zero the gyro to avoid odd drive due to gyro drift.
@@ -94,6 +106,7 @@ public class RobotContainer {
     operatorXbox.start().whileTrue(climbbase.ClimbCommand(1)); // Spin the climb motor forwards.
     operatorXbox.back().whileTrue(climbbase.ClimbCommand(-1)); // Spin the climb motor in reverse. 
     operatorXbox.pov(0).whileTrue(armbase.MoveToSetpoint(6)); // Move the arm to setpoint. When held will oscillate around setpoint.
+    }
   }
 
   public void configureBindings() {}

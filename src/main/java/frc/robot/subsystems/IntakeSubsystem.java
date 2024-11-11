@@ -8,9 +8,12 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import frc.robot.Constants.ManipulatorConstants;
+import frc.robot.Telemetry.RobotTelemetry;
 
 public class IntakeSubsystem extends SubsystemBase {
   // Create intake and shooter motors.
@@ -26,6 +29,12 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Does nothing.
+
+    if (Telemetry.robotVerbosity == RobotTelemetry.HIGH) {
+      SmartDashboard.putNumber("Intake Applied Output", intakeMotor.getAppliedOutput());
+      SmartDashboard.putNumber("Shooter Applied Output", shooterMotor.getAppliedOutput());
+    }
+
   }
 
   /**

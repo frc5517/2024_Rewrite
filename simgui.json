@@ -59,9 +59,15 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "transitory": {
       "SmartDashboard": {
         "Alerts": {
+          "open": true
+        },
+        "Auton Chooser": {
           "open": true
         },
         "open": true

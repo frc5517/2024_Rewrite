@@ -9,72 +9,80 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+    private Command m_autonomousCommand;
 
-  private RobotContainer m_robotContainer;
+    private RobotContainer m_robotContainer;
 
-  @Override
-  public void robotInit() {
-    // Calls RobotContainer when robot initializes.
-    m_robotContainer = new RobotContainer();
-  }
-
-  @Override
-  public void robotPeriodic() {
-    // Run the scheduler constantly. 
-    CommandScheduler.getInstance().run();
-  }
-
-  @Override
-  public void disabledInit() {}
-
-  @Override
-  public void disabledPeriodic() {
-  }
-
-  @Override
-  public void disabledExit() {}
-
-  @Override
-  public void autonomousInit() {
-    // Get auton command when autonomous initializes.
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    // If auton command is not null schedule the auton command.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    @Override
+    public void robotInit() {
+        // Calls RobotContainer when robot initializes.
+        m_robotContainer = new RobotContainer();
     }
-  }
 
-  @Override
-  public void autonomousPeriodic() {}
-
-  @Override
-  public void autonomousExit() {}
-
-  @Override
-  public void teleopInit() {
-    // If auton command is still running at beginning of teleop stop auton.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    @Override
+    public void robotPeriodic() {
+        // Run the scheduler constantly.
+        CommandScheduler.getInstance().run();
     }
-  }
 
-  @Override
-  public void teleopPeriodic() {}
+    @Override
+    public void disabledInit() {
+    }
 
-  @Override
-  public void teleopExit() {}
+    @Override
+    public void disabledPeriodic() {
+    }
 
-  @Override
-  public void testInit() {
-    // Cancel all scheduled commands. 
-    CommandScheduler.getInstance().cancelAll();
-  }
+    @Override
+    public void disabledExit() {
+    }
 
-  @Override
-  public void testPeriodic() {}
+    @Override
+    public void autonomousInit() {
+        // Get auton command when autonomous initializes.
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-  @Override
-  public void testExit() {}
+        // If auton command is not null schedule the auton command.
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.schedule();
+        }
+    }
+
+    @Override
+    public void autonomousPeriodic() {
+    }
+
+    @Override
+    public void autonomousExit() {
+    }
+
+    @Override
+    public void teleopInit() {
+        // If auton command is still running at beginning of teleop stop auton.
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.cancel();
+        }
+    }
+
+    @Override
+    public void teleopPeriodic() {
+    }
+
+    @Override
+    public void teleopExit() {
+    }
+
+    @Override
+    public void testInit() {
+        // Cancel all scheduled commands.
+        CommandScheduler.getInstance().cancelAll();
+    }
+
+    @Override
+    public void testPeriodic() {
+    }
+
+    @Override
+    public void testExit() {
+    }
 }

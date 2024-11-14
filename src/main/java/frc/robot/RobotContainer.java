@@ -89,6 +89,7 @@ public class RobotContainer {
             // Driver Controls
             driverXbox.leftTrigger(.3).toggleOnTrue(fieldDrive); // Toggle robot centric swerve drive.
             driverXbox.y().whileTrue(drivebase.goToNotePID()); // Drive to note with vision.
+            driverXbox.x().whileTrue(drivebase.aimAtSpeaker(2));
             driverXbox.start().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());    // Lock drive train to limit pushing.
             driverXbox.back().onTrue(new InstantCommand(drivebase::zeroGyro)); // Zero the gyro to avoid odd drive due to gyro drift.
 

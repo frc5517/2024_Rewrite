@@ -34,8 +34,8 @@ public final class Constants {
         public static final double maxSpeed = Units.feetToMeters(14.5); // Maximum speed of the robot in meters per second, used to limit acceleration.
         public static final double visionSpeedMultiple = .4; // Multiplier used to limit robot speed while tracking note (speed * visionSpeedMultiple).
         public static final double lowSpeedMultiple = .3;   // Multiplier used to limit robot speed while held (speed * lowSpeedMultiple).
-        public static final double baseSpeedMultiple = .5;  // Multiplier used to limit robot speed while held (speed * baseSpeedMultiple).
-        public static final double highSpeedMultiple = .8;  // Multiplier used to limit robot speed while held (speed * highSpeedMultiple).
+        public static final double baseSpeedMultiple = .4;  // Multiplier used to limit robot speed while held (speed * baseSpeedMultiple).
+        public static final double highSpeedMultiple = .6;  // Multiplier used to limit robot speed while held (speed * highSpeedMultiple).
         public static final double visionTurnP = 0.85;  // PID Turn values for vision tracking.
         public static final double visionForwardP = 1.4;    // PID Forward values for vision tracking.
     }

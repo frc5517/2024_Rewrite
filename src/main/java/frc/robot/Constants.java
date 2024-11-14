@@ -36,8 +36,8 @@ public final class Constants {
         public static final double lowSpeedMultiple = .3;   // Multiplier used to limit robot speed while held (speed * lowSpeedMultiple).
         public static final double baseSpeedMultiple = .5;  // Multiplier used to limit robot speed while held (speed * baseSpeedMultiple).
         public static final double highSpeedMultiple = .8;  // Multiplier used to limit robot speed while held (speed * highSpeedMultiple).
-        public static final PIDConstants visionTurnPID = new PIDConstants(0.85, 0, 0);  // PID Turn values for vision tracking.
-        public static final PIDConstants visionForwardPID = new PIDConstants(1.4, 0, 0);    // PID Forward values for vision tracking.
+        public static final double visionTurnP = 0.85;  // PID Turn values for vision tracking.
+        public static final double visionForwardP = 1.4;    // PID Forward values for vision tracking.
     }
 
     /**

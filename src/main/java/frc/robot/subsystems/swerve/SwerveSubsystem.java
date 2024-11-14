@@ -67,8 +67,8 @@ public class SwerveSubsystem extends SubsystemBase {
     // maxSpeed multiple to be manipulated in customDriveCommand
     public double maxSpeed;
     // Creates the PID Controllers for vision tracking via goToNotePID
-    PIDController turnController = new PIDController(SwerveConstants.visionTurnPID.kP, SwerveConstants.visionTurnPID.kI, SwerveConstants.visionTurnPID.kD);
-    PIDController forwardController = new PIDController(SwerveConstants.visionForwardPID.kP, SwerveConstants.visionForwardPID.kI, SwerveConstants.visionForwardPID.kD);
+    PIDController turnController = new PIDController(.085, 0, 0);
+    PIDController forwardController = new PIDController(1.4, 0, 0);
     /**
      * PhotonVision class to keep an accurate odometry.
      */
@@ -217,26 +217,26 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command goToNotePID() {
         return run(
-                () -> {
-                    var result = vision.getLatestResult(Cameras.CENTER_CAM);
-                    double rotationSpeed;
-                    double forwardSpeed;
-
-                    if (result.hasTargets()) {
-                        double range = PhotonUtils.calculateDistanceToTargetMeters(
-                                Units.inchesToMeters(29.5), // Camera Height
-                                Units.inchesToMeters(2), // Target Height
-                                Units.inchesToMeters(18), // Camera Pitch Radians
-                                result.getBestTarget().getPitch());
-
-                        forwardSpeed = forwardController.calculate(range, 5);
-                        rotationSpeed = turnController.calculate(result.getBestTarget().getYaw(), 2);
-
-                        swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(forwardSpeed * SwerveConstants.visionSpeedMultiple, 0), .8),
-                                rotationSpeed, false, false);
-                    }
-
-                }
+          () -> {
+            var result = vision.getLatestResult(Cameras.CENTER_CAM);
+            double rotationSpeed;
+            double forwardSpeed;
+  
+            if (result.hasTargets()) {
+              double range = PhotonUtils.calculateDistanceToTargetMeters(
+              Units.inchesToMeters(29.5), // Camera Height
+              Units.inchesToMeters(2), // Target Height
+              Units.degreesToRadians(18), // Camera Pitch Radians
+              result.getBestTarget().getPitch());
+  
+              forwardSpeed = forwardController.calculate(range, 5);
+              rotationSpeed = turnController.calculate(result.getBestTarget().getYaw(), 2);
+  
+              swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(forwardSpeed * SwerveConstants.visionSpeedMultiple, 0), .8),
+                                                            rotationSpeed, false, false);
+            }
+  
+          }
         );
     }
 

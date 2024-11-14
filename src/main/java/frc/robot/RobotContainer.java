@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -27,7 +26,6 @@ public class RobotContainer {
     // Calls the subsystems.
     private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     private final IntakeSubsystem intakebase = new IntakeSubsystem();
-    private final ClimbSubsystem climbbase = new ClimbSubsystem();
     private final ArmSubsystem armbase = new ArmSubsystem();
 
     // Creates the auton sendable chooser.
@@ -90,7 +88,7 @@ public class RobotContainer {
         {
             // Driver Controls
             driverXbox.leftTrigger(.3).toggleOnTrue(fieldDrive); // Toggle robot centric swerve drive.
-            driverXbox.rightTrigger().whileTrue(drivebase.goToNotePID()); // Drive to note with vision.
+            driverXbox.y().whileTrue(drivebase.goToNotePID()); // Drive to note with vision.
             driverXbox.start().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());    // Lock drive train to limit pushing.
             driverXbox.back().onTrue(new InstantCommand(drivebase::zeroGyro)); // Zero the gyro to avoid odd drive due to gyro drift.
 
@@ -101,8 +99,8 @@ public class RobotContainer {
             operatorXbox.leftBumper().whileTrue(intakebase.IntakeCommand(1.0)); // Run intake at speed.
             operatorXbox.x().whileTrue(intakebase.ShootCommand(.6, .5, .2)); // Spit the note into the amp.
             operatorXbox.rightBumper().whileTrue(intakebase.ShootCommand(1, .7, .7));  // Shoot the note into the speaker
-            operatorXbox.start().whileTrue(climbbase.ClimbCommand(1)); // Spin the climb motor forwards.
-            operatorXbox.back().whileTrue(climbbase.ClimbCommand(-1)); // Spin the climb motor in reverse.
+            //operatorXbox.start().whileTrue(climbbase.ClimbCommand(1)); // Spin the climb motor forwards.
+            //operatorXbox.back().whileTrue(climbbase.ClimbCommand(-1)); // Spin the climb motor in reverse.
             operatorXbox.pov(0).whileTrue(armbase.MoveToSetpoint(6)); // Move the arm to setpoint. When held will oscillate around setpoint.
         }
     }

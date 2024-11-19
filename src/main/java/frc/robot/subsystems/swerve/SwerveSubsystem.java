@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.Telemetry;
 import frc.robot.subsystems.swerve.Vision.Cameras;
 import org.photonvision.PhotonUtils;
 import swervelib.SwerveController;

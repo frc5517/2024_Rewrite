@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** Add your docs here. */
 public class ManipulatorSuperStructure extends SubsystemBase {
@@ -25,18 +24,18 @@ public class ManipulatorSuperStructure extends SubsystemBase {
 
     public Command angleArmAndIntake() {
         return run(() -> {
-            arm.runArm(2, 1);
-            new Trigger(arm.armAtAngle(1.5, 2.5)).
-            onTrue(intake.intake());
+            arm.runArm(2, 1).
+            onlyIf(arm.armAtAngle(1.5, 2.5)).
+            andThen(intake.intake());
         });
     }
 
     public Command angleArmAndShootHigh() {
         return run(() -> {
-            intake.revShooter().alongWith(arm.runArm(6, .2));
-            new Trigger(intake.shooterReady().
+            intake.revShooter().alongWith(arm.runArm(6, .2)).
+            onlyIf(intake.shooterReady().
             and(arm.armAtAngle(5.8, 6.2))).
-            onTrue(intake.intake());
+            andThen(intake.intake());
         });
     }
 

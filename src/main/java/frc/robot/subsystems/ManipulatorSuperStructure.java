@@ -25,17 +25,19 @@ public class ManipulatorSuperStructure extends SubsystemBase {
     public Command angleArmAndIntake() {
         return run(() -> {
             arm.runArm(2, 1).
-            onlyIf(arm.armAtAngle(1.5, 2.5)).
-            andThen(intake.intake());
+            until(arm.armAtAngle(1.5, 2.5)).
+            andThen(intake.intake().
+            repeatedly().withTimeout(10));
         });
     }
 
     public Command angleArmAndShootHigh() {
         return run(() -> {
             intake.revShooter().alongWith(arm.runArm(6, .2)).
-            onlyIf(intake.shooterReady().
+            until(intake.shooterReady().
             and(arm.armAtAngle(5.8, 6.2))).
-            andThen(intake.intake());
+            andThen(intake.intake().
+            repeatedly().withTimeout(1));
         });
     }
 

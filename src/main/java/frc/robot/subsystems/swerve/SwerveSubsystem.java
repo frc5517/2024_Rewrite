@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -70,6 +71,15 @@ public class SwerveSubsystem extends SubsystemBase {
     // Creates the PID Controllers for vision tracking via goToNotePID
     PIDController turnController = new PIDController(.085, 0, 0);
     PIDController forwardController = new PIDController(1.4, 0, 0);
+
+    /**
+     * UltraSonic Sensor object with necessary doubles
+     */
+    AnalogInput ultrasonicSensor = new AnalogInput(4);
+    double sonicInInches;
+    double slowMultiplier;
+    double sonicSlow;
+
     /**
      * PhotonVision class to keep an accurate odometry.
      */
@@ -229,8 +239,14 @@ public class SwerveSubsystem extends SubsystemBase {
               Units.inchesToMeters(2), // Target Height
               Units.degreesToRadians(18), // Camera Pitch Radians
               result.getBestTarget().getPitch());
+
+              if (-3 >= result.getBestTarget().getYaw() && result.getBestTarget().getYaw() <= 3) {  // If robot is aiming close enough to note
+                  forwardSpeed = forwardController.calculate(range, 5); // drive towards note at good speed
+              } else {
+                  forwardSpeed = forwardController.calculate(range, 5) * .2;    // else slow drive speed
+              }
   
-              forwardSpeed = forwardController.calculate(range, 5);
+
               rotationSpeed = turnController.calculate(result.getBestTarget().getYaw(), 2);
   
               swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(forwardSpeed * SwerveConstants.visionSpeedMultiple, 0), .8),
@@ -409,6 +425,9 @@ public class SwerveSubsystem extends SubsystemBase {
         return run(() -> {
             // Make the robot move
 
+            sonicInInches = ultrasonicSensor.getValue() * 0.0492;   // Convert base value into inches
+            slowMultiplier = sonicInInches / 24; // Start slowing at 24 inches
+
             if (lowSpeed.getAsBoolean()) {
                 maxSpeed = SwerveConstants.lowSpeedMultiple;
             } // If lowSpeed held go slow.
@@ -419,8 +438,16 @@ public class SwerveSubsystem extends SubsystemBase {
                 maxSpeed = SwerveConstants.baseSpeedMultiple;
             } // Else go base speed.
 
+            if (translationX.getAsDouble() > 0) {   // If going forward
+                if (slowMultiplier < 1) {   // and ultrasonic detects object
+                    sonicSlow = slowMultiplier; // start slowing depending on how far away object is
+                }
+            }   else {
+                sonicSlow = 1;
+            }
+
             swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(  // Creates drive
-                            translationX.getAsDouble() * swerveDrive.getMaximumVelocity() * maxSpeed,
+                            translationX.getAsDouble() * swerveDrive.getMaximumVelocity() * maxSpeed * sonicSlow,
                             translationY.getAsDouble() * swerveDrive.getMaximumVelocity() * maxSpeed), 0.8),
                     Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumAngularVelocity() * maxSpeed,
                     fieldRelative,
